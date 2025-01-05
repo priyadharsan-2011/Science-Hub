@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Identification Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ff758c, #7ed1ff);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .control-buttons, .sound-btns-container {
+            margin: 15px 0;
+        }
+
+        .control-btn {
+            padding: 10px 15px;
+            margin: 0 10px;
+            font-size: 16px;
+            background-color: #0066ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .control-btn:hover {
+            background-color: #004cbf;
+        }
+
+        .sound-btn {
+            padding: 10px 15px;
+            background-color: #ff8566;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .sound-btn:hover {
+            background-color: #e63946;
+            transform: scale(1.1);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .score {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Sound Identification Game</h1>
+        <p>Click "Play Sound" to start, and guess the sound!</p>
+
+        <div class="control-buttons">
+            <button id="play-btn" class="control-btn">Play Sound</button>
+            <button id="pause-btn" class="control-btn">Pause Sound</button>
+        </div>
+
+        <div class="sound-btns-container">
+            <button class="sound-btn" data-sound="cat">Cat</button>
+            <button class="sound-btn" data-sound="dog">Dog</button>
+            <button class="sound-btn" data-sound="car">Car</button>
+            <button class="sound-btn" data-sound="rain">Rain</button>
+            <button class="sound-btn" data-sound="bird">Bird</button>
+            <button class="sound-btn" data-sound="train">Train</button>
+            <button class="sound-btn" data-sound="laugh">Laugh</button>
+            <button class="sound-btn" data-sound="horn">Horn</button>
+        </div>
+
+        <div class="feedback" id="result">Press "Play Sound" to begin.</div>
+        <div class="score">Score: <span id="score">0</span></div>
+    </div>
+
+    <!-- Audio Files -->
+    <audio id="cat-sound" src="cat.mp3"></audio>
+    <audio id="dog-sound" src="dog.mp3"></audio>
+    <audio id="car-sound" src="car.mp3"></audio>
+    <audio id="rain-sound" src="rain.mp3"></audio>
+    <audio id="bird-sound" src="bird.mp3"></audio>
+    <audio id="train-sound" src="train.mp3"></audio>
+    <audio id="laugh-sound" src="laugh.mp3"></audio>
+    <audio id="horn-sound" src="horn.mp3"></audio>
+
+    <script>
+        const sounds = ["cat", "dog", "car", "rain", "bird", "train", "laugh", "horn"];
+        let remainingSounds = [...sounds];
+        let currentSound = null;
+        let score = 0;
+
+        const playBtn = document.getElementById('play-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resultText = document.getElementById('result');
+        const scoreDisplay = document.getElementById('score');
+
+        function getRandomSound() {
+            if (remainingSounds.length === 0) {
+                remainingSounds = [...sounds]; // Reset sounds if all are played
+            }
+            const randomIndex = Math.floor(Math.random() * remainingSounds.length);
+            return remainingSounds.splice(randomIndex, 1)[0];
+        }
+
+        function playSound() {
+            if (currentSound) {
+                currentSound.pause();
+                currentSound.currentTime = 0;
+            }
+
+            const nextSound = getRandomSound();
+            currentSound = document.getElementById(`${nextSound}-sound`);
+            currentSound.play();
+            resultText.textContent = "A sound is playing... Guess now!";
+            resultText.style.color = "#3498db";
+        }
+
+        function pauseSound() {
+            if (currentSound) {
+                currentSound.pause();
+                resultText.textContent = "Sound paused.";
+                resultText.style.color = "#e67e22";
+            }
+        }
+
+        playBtn.addEventListener('click', playSound);
+        pauseBtn.addEventListener('click', pauseSound);
+
+        const buttons = document.querySelectorAll('.sound-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const guessedSound = button.getAttribute('data-sound');
+                if (currentSound && currentSound.id.startsWith(guessedSound)) {
+                    resultText.textContent = `Correct! It was a ${guessedSound}.`;
+                    resultText.style.color = "#2ecc71";
+                    score++;
+                    scoreDisplay.textContent = score;
+
+                    setTimeout(() => {
+                        playSound(); // Automatically play the next sound
+                    }, 1000);
+                } else {
+                    resultText.textContent = "Wrong! Try again.";
+                    resultText.style.color = "#e74c3c";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
